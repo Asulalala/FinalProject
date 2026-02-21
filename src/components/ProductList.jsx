@@ -38,6 +38,9 @@ export default function ProductList({ products, onAddToCart }) {
       quantity: quantities[product.id],
       selectedColor: product.category === "Clothes" ? selectedColors[product.id] : null,
     });
+    
+    // Show success notification
+    alert(`✓ ${product.name} (${quantities[product.id]}x) added to cart!`);
   };
 
   return (

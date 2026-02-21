@@ -7,7 +7,7 @@ export default function OrderManagement() {
   const [orders, setOrders] = useState(
     JSON.parse(localStorage.getItem("purchaseHistory")) || []
   );
-  const [activeTab, setActiveTab] = useState("orders"); // "orders", "returns", "refunds"
+  const [activeTab, setActiveTab] = useState("orders"); // "orders", "delivered", "returns", "refunds"
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [returnRequests, setReturnRequests] = useState(
     JSON.parse(localStorage.getItem("returnRequests")) || []
@@ -127,7 +127,17 @@ Thank you for your purchase!
           }}
           onClick={() => setActiveTab("orders")}
         >
-          📦 Orders ({orders.length})
+          📦 Active Orders ({orders.filter(o => o.status !== "Delivered").length})
+        </button>
+        <button
+          style={{
+            ...tabButtonStyle,
+            backgroundColor: activeTab === "delivered" ? "#0b5ed7" : "#e9ecef",
+            color: activeTab === "delivered" ? "#fff" : "#000",
+          }}
+          onClick={() => setActiveTab("delivered")}
+        >
+          ✅ Delivered ({orders.filter(o => o.status === "Delivered").length})
         </button>
         <button
           style={{
@@ -154,14 +164,14 @@ Thank you for your purchase!
       {/* Orders Tab */}
       {activeTab === "orders" && (
         <div style={contentStyle}>
-          <h2>Your Orders</h2>
-          {orders.length === 0 ? (
+          <h2>Active Orders (Pending & Shipped)</h2>
+          {orders.filter(o => o.status !== "Delivered").length === 0 ? (
             <p style={{ color: "#666", fontSize: "16px" }}>
-              No orders yet. Start shopping!
+              No active orders. All orders delivered!
             </p>
           ) : (
             <div style={ordersGridStyle}>
-              {orders.map((order) => (
+              {orders.filter(o => o.status !== "Delivered").map((order) => (
                 <div key={order.id} style={orderCardStyle}>
                   <div style={orderHeaderStyle}>
                     <h3>Order #{order.id}</h3>
@@ -237,6 +247,177 @@ Thank you for your purchase!
                         Request Return
                       </button>
                     )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Order Details Modal */}
+          {selectedOrder && (
+            <div style={modalOverlayStyle} onClick={() => setSelectedOrder(null)}>
+              <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
+                <h2>Order Details #{selectedOrder.id}</h2>
+                <table style={detailsTableStyle}>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <strong>Date:</strong>
+                      </td>
+                      <td>{selectedOrder.date}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>Customer:</strong>
+                      </td>
+                      <td>{selectedOrder.customer}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>Email:</strong>
+                      </td>
+                      <td>{selectedOrder.email}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>Shipping Address:</strong>
+                      </td>
+                      <td>{selectedOrder.shippingAddress || "N/A"}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>Status:</strong>
+                      </td>
+                      <td style={{ color: getStatusColor(selectedOrder.status), fontWeight: "600" }}>
+                        {selectedOrder.status}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <strong>Payment Method:</strong>
+                      </td>
+                      <td>{selectedOrder.paymentMethod || "Credit Card"}</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <h3 style={{ marginTop: "20px" }}>Items Ordered:</h3>
+                <table style={itemsTableStyle}>
+                  <thead>
+                    <tr style={{ backgroundColor: "#f8f9fa", fontWeight: "600" }}>
+                      <th>Product</th>
+                      <th>Qty</th>
+                      <th>Price</th>
+                      <th>Color</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrder.items.map((item, idx) => (
+                      <tr key={idx}>
+                        <td>{item.name}</td>
+                        <td align="center">{item.quantity}</td>
+                        <td>₱{Number(item.price).toFixed(2)}</td>
+                        <td>{item.selectedColor || "N/A"}</td>
+                        <td>₱{(item.quantity * item.price).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div style={summaryStyle}>
+                  <p>
+                    <strong>Subtotal:</strong> ₱{Number(selectedOrder.subtotal).toFixed(2)}
+                  </p>
+                  {selectedOrder.discount > 0 && (
+                    <p>
+                      <strong>Discount:</strong> -₱{Number(selectedOrder.discount).toFixed(2)}
+                    </p>
+                  )}
+                  <p style={{ fontSize: "18px", fontWeight: "700", color: "#0b5ed7" }}>
+                    <strong>Total:</strong> ₱{Number(selectedOrder.total).toFixed(2)}
+                  </p>
+                </div>
+
+                <button style={closeButtonStyle} onClick={() => setSelectedOrder(null)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Delivered Orders Tab */}
+      {activeTab === "delivered" && (
+        <div style={contentStyle}>
+          <h2>Delivered Orders</h2>
+          {orders.filter(o => o.status === "Delivered").length === 0 ? (
+            <p style={{ color: "#666", fontSize: "16px" }}>
+              No delivered orders yet.
+            </p>
+          ) : (
+            <div style={ordersGridStyle}>
+              {orders.filter(o => o.status === "Delivered").map((order) => (
+                <div key={order.id} style={orderCardStyle}>
+                  <div style={orderHeaderStyle}>
+                    <h3>Order #{order.id}</h3>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      {getStatusIcon(order.status)}
+                      <span
+                        style={{
+                          ...statusBadgeStyle,
+                          backgroundColor: getStatusColor(order.status),
+                        }}
+                      >
+                        {order.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p>
+                    <strong>Date:</strong> {order.date}
+                  </p>
+                  <p>
+                    <strong>Total:</strong> ₱{Number(order.total).toFixed(2)}
+                  </p>
+                  <p>
+                    <strong>Payment Method:</strong> {order.paymentMethod || "Credit Card"}
+                  </p>
+
+                  <div style={{ marginTop: "15px", borderTop: "1px solid #eee", paddingTop: "10px" }}>
+                    <h4>Items ({order.items.length}):</h4>
+                    <ul style={{ marginLeft: "20px", marginTop: "10px" }}>
+                      {order.items.map((item, idx) => (
+                        <li key={idx} style={{ marginBottom: "5px", fontSize: "13px" }}>
+                          {item.name} x{item.quantity} 
+                          {item.selectedColor && ` (${item.selectedColor})`}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div style={buttonsContainerStyle}>
+                    <button
+                      style={viewButtonStyle}
+                      onClick={() => setSelectedOrder(order)}
+                    >
+                      View Details
+                    </button>
+                    <button
+                      style={downloadButtonStyle}
+                      onClick={() => downloadInvoice(order)}
+                    >
+                      <FaDownload style={{ marginRight: "8px" }} />
+                      Invoice
+                    </button>
+                    <button
+                      style={returnButtonStyle}
+                      onClick={() => handleRequestReturn(order)}
+                    >
+                      <FaUndo style={{ marginRight: "8px" }} />
+                      Request Return
+                    </button>
                   </div>
                 </div>
               ))}

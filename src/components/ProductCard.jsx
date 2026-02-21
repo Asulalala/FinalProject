@@ -15,6 +15,9 @@ export default function ProductCard({ product, addToCart }) {
       quantity: qty,
       selectedColor: product.category === "Clothes" ? selectedColor : null,
     });
+    
+    // Show success notification
+    alert(`✓ ${product.name} (${qty}x) added to cart!`);
   };
 
   return (
