@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Reviews from "./Reviews";
 
 export default function ProductDetail({ products, addToCart }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState("Black");
+
+  const clothingColors = ["Black", "White", "Red", "Blue", "Navy", "Gray", "Green", "Brown"];
 
   // Find product by ID
   const product = products.find((p) => p.id.toString() === id);
@@ -13,15 +17,19 @@ export default function ProductDetail({ products, addToCart }) {
     return (
       <div style={centerStyle}>
         <h2>Product not found</h2>
-        <button className="btn btn-secondary mt-3" onClick={() => navigate(-1)}>
-          Go Back
+        <button className="btn btn-secondary mt-3" onClick={() => navigate("/")}>
+          Back to Homepage
         </button>
       </div>
     );
   }
 
   const handleAddToCart = () => {
-    addToCart({ ...product, quantity });
+    addToCart({ 
+      ...product, 
+      quantity,
+      selectedColor: product.category === "Clothes" ? selectedColor : null,
+    });
   };
 
   return (
@@ -56,6 +64,24 @@ export default function ProductDetail({ products, addToCart }) {
             />
           </div>
 
+          {/* Color Selection for Clothes */}
+          {product.category === "Clothes" && (
+            <div style={colorSelectContainer}>
+              <label style={colorSelectLabel}>Color:</label>
+              <select
+                value={selectedColor}
+                onChange={(e) => setSelectedColor(e.target.value)}
+                style={colorSelectInput}
+              >
+                {clothingColors.map((color) => (
+                  <option key={color} value={color}>
+                    {color}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Details & Features */}
           <div style={detailsContainer}>
             <h4>Details:</h4>
@@ -74,14 +100,21 @@ export default function ProductDetail({ products, addToCart }) {
           </div>
 
           {/* Buttons */}
-          <button style={addButton} onClick={handleAddToCart}>
-            Add to Cart
+          <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
+            <button style={addButton} onClick={handleAddToCart}>
+              Add to Cart
+            </button>
+          </div>
+          <button style={backButton} onClick={() => navigate("/")}>
+            Back to Homepage
           </button>
-          <button style={backButton} onClick={() => navigate(-1)}>
-            Go Back
-          </button>
+
+          {/* Reviews Section */}
+          <Reviews productId={product.id} productName={product.name} />
         </div>
       </div>
+
+      {/* Reviews at bottom of page */}
     </div>
   );
 }
@@ -121,6 +154,10 @@ const quantityContainer = { marginBottom: "20px", display: "flex", alignItems: "
 const quantityLabel = { marginRight: "10px", fontWeight: "500" };
 const quantityInput = { width: "60px", padding: "4px 6px", borderRadius: "4px", border: "1px solid #ccc", textAlign: "center" };
 
+const colorSelectContainer = { marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" };
+const colorSelectLabel = { fontWeight: "600", minWidth: "70px" };
+const colorSelectInput = { flex: 1, maxWidth: "200px", padding: "8px 10px", borderRadius: "6px", border: "1.5px solid #d1e7f7", background: "#f8fbfd", fontSize: "14px", fontWeight: "500", cursor: "pointer" };
+
 const detailsContainer = { backgroundColor: "#f9f9f9", padding: "15px", borderRadius: "6px", marginBottom: "20px" };
 
 const addButton = {
@@ -133,6 +170,18 @@ const addButton = {
   cursor: "pointer",
   fontSize: "16px",
   marginBottom: "10px",
+};
+
+const wishlistButton = {
+  flex: 1,
+  padding: "10px",
+  border: "none",
+  color: "#fff",
+  borderRadius: "6px",
+  cursor: "pointer",
+  fontSize: "14px",
+  fontWeight: "600",
+  transition: "all 0.3s",
 };
 
 const backButton = {

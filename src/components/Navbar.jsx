@@ -26,12 +26,16 @@ export default function Navbar({ cartCount, onSearch, onCategorySelect, selected
 
         {/* Links */}
         <div style={linksStyle}>
+          <Link to="/" style={linkStyle}>Home</Link>
+          <Link to="/profile" style={linkStyle}>Profile</Link>
+          <Link to="/customer-service" style={linkStyle}>💬 Support</Link>
+          <Link to="/orders" style={linkStyle}>📦 Orders</Link>
           <Link to="/add-product" style={linkStyle}>Add Product</Link>
           <Link to="/cart" style={linkStyle}>Cart ({cartCount})</Link>
         </div>
       </nav>
 
-      {/* Category Filter */}
+     {/* Category Filter */}
       <div style={categoryContainer}>
         {categories.map((cat) => (
           <button
@@ -41,6 +45,8 @@ export default function Navbar({ cartCount, onSearch, onCategorySelect, selected
               ...categoryButton,
               backgroundColor: selectedCategory === cat ? "#007bff" : "#e6f0ff",
               color: selectedCategory === cat ? "#fff" : "#000",
+              fontWeight: selectedCategory === cat ? "600" : "500",
+              transform: selectedCategory === cat ? "scale(1.05)" : "scale(1)",
             }}
           >
             {cat}
@@ -51,26 +57,26 @@ export default function Navbar({ cartCount, onSearch, onCategorySelect, selected
   );
 }
 
-// Styles
+// Styles remain mostly the same
 const navbarWrapper = {
   width: "100%",
-  backgroundColor: "#007bff",
+  backgroundColor: "#0b5ed7",
   color: "#fff",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  boxShadow: "0 2px 12px rgba(0,0,0,0.12)",
 };
 
 const navStyle = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  padding: "10px 20px",
+  padding: "12px 24px",
 };
 
 const logoStyle = {
   display: "flex",
   alignItems: "center",
-  fontWeight: "bold",
-  fontSize: "22px",
+  fontWeight: "700",
+  fontSize: "24px",
 };
 
 const logoLinkStyle = {
@@ -80,38 +86,44 @@ const logoLinkStyle = {
 
 const searchBarStyle = {
   flex: "1",
-  maxWidth: "300px",
+  maxWidth: "350px",
   margin: "0 20px",
-  padding: "6px 10px",
-  borderRadius: "4px",
-  border: "1px solid #ccc",
+  padding: "8px 14px",
+  borderRadius: "8px",
+  border: "none",
+  fontSize: "14px",
+  transition: "0.2s",
 };
 
 const linksStyle = {
   display: "flex",
-  gap: "20px",
+  gap: "15px",
+  flexWrap: "wrap",
 };
 
 const linkStyle = {
   color: "#fff",
   textDecoration: "none",
-  fontWeight: "500",
+  fontWeight: "600",
+  transition: "0.2s",
 };
 
 const categoryContainer = {
   display: "flex",
   justifyContent: "center",
   flexWrap: "wrap",
-  padding: "8px 0",
-  backgroundColor: "#f8f9fa",
+  padding: "12px 0",
+  backgroundColor: "#f0f4f9",
   gap: "10px",
+  boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)",
 };
 
 const categoryButton = {
-  padding: "6px 14px",
+  padding: "8px 16px",
   border: "none",
   borderRadius: "20px",
   cursor: "pointer",
-  fontWeight: "500",
-  transition: "0.2s",
+  fontWeight: "600",
+  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  fontSize: "14px",
 };
